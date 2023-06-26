@@ -5,29 +5,47 @@
 #include <string>
 #include <chrono>
 #include <vector>
-#include <winbase.h> // https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw?redirectedfrom=MSDN
+//#include <winbase.h> // https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-readdirectorychangesw?redirectedfrom=MSDN
 #include <Windows.h>
 
+#include <thread>
+
+
+// pass the pointer to where we are in memory,
+// pass the pointer to where we need to process to
+// pass the reference to the vector of where we need to store the values into.
+int parallel(char * ptr, char * stop, std::vector<std::string> &myvector) {
+	LONGLONG y;
+	char arr[330];
+	std::fill(arr, arr+330, '\0');
+	
+	char * pch = NULL;
+	while ((pch = std::strchr(ptr,'\n'))){
+		if (pch >= stop) break;
+		std::fill(arr, arr+330, '\0'); 		// clean out array
+		
+        (y) = pch - ptr; // size
+        
+        std::memcpy(arr, ptr, y);
+        myvector.push_back(arr);		
+        
+        // off set for '\n'
+		ptr = pch+134;
+    }
+    return 1;
+}
+
+
 int main(void){    
+	const char *filePath="C:\\Users\\riola\\Desktop\\Crimes_-_2001_to_Present.csv";
+	//const char *filePath = "C:\\Users\\riola\\Downloads\\500000-Sales-Records\\500000 Sales Records.csv";
 	
-	
-	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-	std::string filePath = "C:\\Users\\riola\\Desktop\\Crimes_-_2001_to_Present.csv";
-	size_t size = filePath.length();
-
-	TCHAR* wArr = new TCHAR[size+1];
-	for (size_t i = 0; i < size; ++i)
-		wArr[i] = (filePath[i]);
-	wArr[size] = 0;
-
-	TCHAR *lpFileName = TEXT(wArr);
     HANDLE hFile;
     HANDLE hMap;
     LPVOID lpBasePtr;
     LARGE_INTEGER liFileSize;
 
-    hFile = CreateFile(lpFileName, 
+    hFile = CreateFile(filePath, 
         GENERIC_READ,                          // dwDesiredAccess
         0,                                     // dwShareMode
         NULL,                                  // lpSecurityAttributes
@@ -74,34 +92,48 @@ int main(void){
     }
 
     char *ptr = ((char *)lpBasePtr);
-    LONGLONG i = liFileSize.QuadPart;
-
-	unsigned long int x = 0;
-	char **tst = &ptr; // 
-	signed long int y = 0;
-	//
-	char arr[1000];
-	//std::fill(arr, arr+1000, '\0');
-    std::vector<std::string> myvector;
-    while (i-- > 0) {
-		if (*ptr != '\n') {
-			// update value holding largest pointer
-			(tst) = (&(ptr))+x;
-		} else {			
-			// need to ensure that memcopy is aligned, fun improvements 
-			// https://www.embedded.com/optimizing-memcpy-improves-speed
-			std::memcpy(arr, ptr-x+y, x-y);
-			// seems wasteful (?)
-			arr[x-y] = '\0';
-			//
-			myvector.push_back(arr);
-			y=x;
-		} 
-		x++;
-		(*ptr++);
-		
-    }
+    ((void *)ptr);
+    //LONGLONG i = liFileSize.QuadPart;
+	//const LONGLONG z = (i-1);
+	//LONGLONG y = 0;
+	//LONGLONG ziy = 0;
 	
+	
+	//unsigned long int x = 0;
+	//char **tst = &ptr; // 
+	
+	//
+	
+
+    std::vector<std::string> myvector;
+    // fit to specific data
+    // just use i to do calcs
+    unsigned int en = 0;
+    
+    //int max = 0;
+    
+    // 6992232
+
+	LONGLONG k = 322;
+
+	std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+	
+    //parallel(ptr, ptr+i, myvector);
+    //std::thread nThread(parallel, (ptr), ptr+i, myvector);
+    while ((pch = std::strchr(ptr,'\n'))){
+		 
+		std::fill(arr, arr+330, '\0'); 		// clean out array
+		
+        (y) = pch - ptr; // size
+        
+        std::memcpy(arr, ptr, y);
+        myvector.push_back(arr);		
+        
+        // off set for '\n'
+		ptr = pch+134;
+    }
+    //nThread.join();
+
     UnmapViewOfFile(lpBasePtr);
     CloseHandle(hMap);
     CloseHandle(hFile);
@@ -112,13 +144,22 @@ int main(void){
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[mus]" << std::endl;
 	std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 
-	std::cout << "Finished " << myvector.size() << std::endl;
-	
-	for (auto it = myvector.begin(); it != myvector.end(); ++it) {
-        std::cout << ' ' << *it << std::endl;
-        std::cin.ignore();
-    }
+	std::cout << "Finished " << k  << ' ' << myvector.size() << ", EN: " << en << " vs " << liFileSize.QuadPart << ' ' <<  ((float)k/liFileSize.QuadPart)*100 << "% " << (float)liFileSize.QuadPart/k<< std::endl;
 	
 	
 	return 0;
 }
+/*
+ * while ((pch = std::strchr(ptr,'\n'))){
+		 
+		std::fill(arr, arr+330, '\0'); 		// clean out array
+		
+        (y) = pch - ptr; // size
+        
+        std::memcpy(arr, ptr, y);
+        myvector.push_back(arr);		
+        
+        // off set for '\n'
+		ptr = pch+134;
+    }
+ * */
